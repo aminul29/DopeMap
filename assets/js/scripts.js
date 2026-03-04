@@ -321,7 +321,7 @@
     $title.text(markerData.title || markerData.name || markerData.countryCode || '');
 
     if (markerData.subtitle) {
-      $subtitle.text(markerData.subtitle).show();
+      $subtitle.html(markerData.subtitle).show();
     } else {
       $subtitle.hide();
     }

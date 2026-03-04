@@ -588,8 +588,8 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 			'subtitle',
 			array(
 				'label'       => esc_html__( 'Popup Subtitle', 'dope-map' ),
-				'type'        => \Elementor\Controls_Manager::TEXTAREA,
-				'placeholder' => esc_html__( 'Short description for this location.', 'dope-map' ),
+				'type'        => \Elementor\Controls_Manager::WYSIWYG,
+				'default'     => '',
 			)
 		);
 
@@ -683,7 +683,7 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 
 				$marker_label = isset( $location['marker_label'] ) ? sanitize_text_field( $location['marker_label'] ) : '';
 				$title        = isset( $location['title'] ) ? sanitize_text_field( $location['title'] ) : '';
-				$subtitle     = isset( $location['subtitle'] ) ? sanitize_textarea_field( $location['subtitle'] ) : '';
+				$subtitle     = isset( $location['subtitle'] ) ? wp_kses_post( $location['subtitle'] ) : '';
 				$button_text  = isset( $location['button_text'] ) ? sanitize_text_field( $location['button_text'] ) : '';
 
 				$image_url = '';
@@ -741,7 +741,7 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 				</div>
 				<div class="dope-map-popup__content">
 					<h4 class="dope-map-popup__title"></h4>
-					<p class="dope-map-popup__subtitle"></p>
+					<div class="dope-map-popup__subtitle"></div>
 					<a class="dope-map-popup__button" href="#"></a>
 				</div>
 			</div>

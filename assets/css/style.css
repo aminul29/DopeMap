@@ -119,6 +119,24 @@
   line-height: 1.45;
 }
 
+.dope-map-widget .dope-map-popup__subtitle p,
+.dope-map-widget .dope-map-popup__subtitle ul,
+.dope-map-widget .dope-map-popup__subtitle ol {
+  margin: 0 0 8px;
+  color: inherit;
+}
+
+.dope-map-widget .dope-map-popup__subtitle p:last-child,
+.dope-map-widget .dope-map-popup__subtitle ul:last-child,
+.dope-map-widget .dope-map-popup__subtitle ol:last-child {
+  margin-bottom: 0;
+}
+
+.dope-map-widget .dope-map-popup__subtitle a {
+  color: inherit;
+  text-decoration: underline;
+}
+
 .dope-map-widget .dope-map-popup__button,
 .dope-map-widget .dope-map-popup__button:visited {
   display: none;
