@@ -74,6 +74,7 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 			'section_map_style',
 			array(
 				'label' => esc_html__( 'Map Style', 'dope-map' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
 			)
 		);
 
@@ -189,6 +190,357 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 				'default'    => array(
 					'size' => 16,
 					'unit' => 'px',
+				),
+			)
+		);
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'section_popup_box_style',
+			array(
+				'label' => esc_html__( 'Popup Box', 'dope-map' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_control(
+			'popup_background_color',
+			array(
+				'label'     => esc_html__( 'Background Color', 'dope-map' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'default'   => '#0F1621',
+				'selectors' => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-popup-bg: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'popup_text_color',
+			array(
+				'label'     => esc_html__( 'Text Color', 'dope-map' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'default'   => '#ECF4FF',
+				'selectors' => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-popup-text: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'popup_border_color',
+			array(
+				'label'     => esc_html__( 'Border Color', 'dope-map' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'default'   => '#2B3950',
+				'selectors' => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-popup-border-color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
+			'popup_border_radius',
+			array(
+				'label'      => esc_html__( 'Border Radius', 'dope-map' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => array( 'px', '%' ),
+				'range'      => array(
+					'px' => array(
+						'min' => 0,
+						'max' => 60,
+					),
+					'%'  => array(
+						'min' => 0,
+						'max' => 50,
+					),
+				),
+				'default'    => array(
+					'size' => 12,
+					'unit' => 'px',
+				),
+				'selectors'  => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-popup-radius: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
+			'popup_content_padding',
+			array(
+				'label'      => esc_html__( 'Content Padding', 'dope-map' ),
+				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', '%' ),
+				'default'    => array(
+					'top'      => 14,
+					'right'    => 14,
+					'bottom'   => 16,
+					'left'     => 14,
+					'unit'     => 'px',
+					'isLinked' => false,
+				),
+				'selectors'  => array(
+					'{{WRAPPER}} .dope-map-popup__content' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'popup_close_button_heading',
+			array(
+				'label'     => esc_html__( 'Close Button', 'dope-map' ),
+				'type'      => \Elementor\Controls_Manager::HEADING,
+				'separator' => 'before',
+			)
+		);
+
+		$this->add_control(
+			'popup_close_color',
+			array(
+				'label'     => esc_html__( 'Close Icon Color', 'dope-map' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'default'   => '#FFFFFF',
+				'selectors' => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-popup-close-color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'popup_close_background',
+			array(
+				'label'     => esc_html__( 'Close Background', 'dope-map' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'default'   => 'rgba(0, 0, 0, 0.40)',
+				'selectors' => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-popup-close-bg: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'popup_close_focus_color',
+			array(
+				'label'     => esc_html__( 'Close Focus Outline', 'dope-map' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'default'   => '#9CC8FF',
+				'selectors' => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-popup-close-focus: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'section_popup_title_style',
+			array(
+				'label' => esc_html__( 'Popup Title', 'dope-map' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_control(
+			'popup_title_color',
+			array(
+				'label'     => esc_html__( 'Color', 'dope-map' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'default'   => '#F6F9FF',
+				'selectors' => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-popup-title-color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'popup_title_typography',
+				'selector' => '{{WRAPPER}} .dope-map-popup__title',
+			)
+		);
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'section_popup_subtitle_style',
+			array(
+				'label' => esc_html__( 'Popup Subtitle', 'dope-map' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_control(
+			'popup_subtitle_color',
+			array(
+				'label'     => esc_html__( 'Color', 'dope-map' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'default'   => '#C9D8EB',
+				'selectors' => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-popup-subtitle-color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'popup_subtitle_typography',
+				'selector' => '{{WRAPPER}} .dope-map-popup__subtitle',
+			)
+		);
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'section_popup_link_style',
+			array(
+				'label' => esc_html__( 'Popup Link', 'dope-map' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_control(
+			'popup_link_text_color',
+			array(
+				'label'     => esc_html__( 'Text Color', 'dope-map' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'default'   => '#EEF5FF',
+				'selectors' => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-popup-link-color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'popup_link_background_color',
+			array(
+				'label'     => esc_html__( 'Background Color', 'dope-map' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'default'   => '#1A3659',
+				'selectors' => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-popup-link-bg: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'popup_link_hover_text_color',
+			array(
+				'label'     => esc_html__( 'Hover Text Color', 'dope-map' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'default'   => '#FFFFFF',
+				'selectors' => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-popup-link-hover-color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'popup_link_hover_background_color',
+			array(
+				'label'     => esc_html__( 'Hover Background Color', 'dope-map' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'default'   => '#274A75',
+				'selectors' => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-popup-link-hover-bg: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
+			'popup_link_border_radius',
+			array(
+				'label'      => esc_html__( 'Border Radius', 'dope-map' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => array( 'px', '%' ),
+				'range'      => array(
+					'px' => array(
+						'min' => 0,
+						'max' => 40,
+					),
+					'%'  => array(
+						'min' => 0,
+						'max' => 50,
+					),
+				),
+				'default'    => array(
+					'size' => 8,
+					'unit' => 'px',
+				),
+				'selectors'  => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-popup-link-radius: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'popup_link_typography',
+				'selector' => '{{WRAPPER}} .dope-map-popup__button',
+			)
+		);
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
+			'section_popup_image_style',
+			array(
+				'label' => esc_html__( 'Popup Image', 'dope-map' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_responsive_control(
+			'popup_image_max_height',
+			array(
+				'label'      => esc_html__( 'Max Height', 'dope-map' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => array( 'px', '%' ),
+				'range'      => array(
+					'px' => array(
+						'min' => 60,
+						'max' => 360,
+					),
+					'%'  => array(
+						'min' => 20,
+						'max' => 100,
+					),
+				),
+				'default'    => array(
+					'size' => 140,
+					'unit' => 'px',
+				),
+				'selectors'  => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-popup-image-max-height: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
+			'popup_image_border_radius',
+			array(
+				'label'      => esc_html__( 'Border Radius', 'dope-map' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => array( 'px', '%' ),
+				'range'      => array(
+					'px' => array(
+						'min' => 0,
+						'max' => 60,
+					),
+					'%'  => array(
+						'min' => 0,
+						'max' => 50,
+					),
+				),
+				'default'    => array(
+					'size' => 0,
+					'unit' => 'px',
+				),
+				'selectors'  => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-popup-image-radius: {{SIZE}}{{UNIT}};',
 				),
 			)
 		);
