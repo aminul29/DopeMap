@@ -177,7 +177,7 @@
     return getCountryCenterLatLng(mapObject, countryCode);
   }
 
-  function addEditorMarker(mapObject, location, markerColor) {
+  function addEditorMarker(mapObject, location, markerColor, markerIconSize) {
     if (!mapObject || typeof mapObject.addMarker !== 'function' || !validLatLng([location.custom_lat, location.custom_lng])) {
       return;
     }
@@ -187,7 +187,7 @@
     mapObject.addMarker(nextKey, {
       latLng: [location.custom_lat, location.custom_lng],
       name: location.marker_label || location.country_code || 'Location',
-      style: getMarkerVisualStyle(markerColor),
+      style: getMarkerVisualStyle(markerColor, markerIconSize),
       _dope: {
         countryCode: location.country_code,
         name: location.marker_label,
@@ -224,10 +224,25 @@
     );
   }
 
-  function getMarkerIconDataUrl(color) {
+  function getMarkerIconSize(markerIconSize) {
+    var parsed = Number(markerIconSize);
+
+    if (!Number.isFinite(parsed)) {
+      return 16;
+    }
+
+    return Math.max(12, Math.min(96, Math.round(parsed)));
+  }
+
+  function getMarkerIconDataUrl(color, markerIconSize) {
     var safeColor = color || '#FFFFFF';
+    var safeSize = getMarkerIconSize(markerIconSize);
     var svg =
-      '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24">' +
+      '<svg xmlns="http://www.w3.org/2000/svg" width="' +
+      safeSize +
+      '" height="' +
+      safeSize +
+      '" viewBox="0 0 24 24">' +
       '<path fill="' +
       safeColor +
       '" d="M12 2C8.13 2 5 5.13 5 9c0 5.06 6.18 11.97 6.44 12.26a.75.75 0 0 0 1.12 0C12.82 20.97 19 14.06 19 9c0-3.87-3.13-7-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z"/>' +
@@ -236,11 +251,13 @@
     return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
   }
 
-  function getMarkerVisualStyle(markerColor) {
+  function getMarkerVisualStyle(markerColor, markerIconSize) {
+    var safeSize = getMarkerIconSize(markerIconSize);
+
     return {
       image: {
-        url: getMarkerIconDataUrl(markerColor),
-        offset: [0, -13],
+        url: getMarkerIconDataUrl(markerColor, safeSize),
+        offset: [0, -Math.round(safeSize / 2)],
       },
     };
   }
@@ -267,7 +284,7 @@
     return mapObject.pointToLatLng(bbox.x + bbox.width / 2, bbox.y + bbox.height / 2);
   }
 
-  function normalizeMarkers(rawMarkers, mapObject, markerColor) {
+  function normalizeMarkers(rawMarkers, mapObject, markerColor, markerIconSize) {
     var prepared = [];
 
     (rawMarkers || []).forEach(function (marker) {
@@ -282,7 +299,7 @@
       prepared.push({
         latLng: latLng,
         name: marker.name || marker.countryCode || 'Location',
-        style: getMarkerVisualStyle(markerColor),
+        style: getMarkerVisualStyle(markerColor, markerIconSize),
         _dope: marker,
       });
     });
@@ -459,7 +476,12 @@
         var regionName = getRegionName(mapObject, countryCode);
         var newLocation = buildLocationItem(countryCode, regionName, latLng);
 
-        addEditorMarker(mapObject, newLocation, styles.markerColor || '#FFFFFF');
+        addEditorMarker(
+          mapObject,
+          newLocation,
+          styles.markerColor || '#FFFFFF',
+          styles.markerIconSize || 16
+        );
 
         // Persist only when running inside Elementor editor.
         if (isEditorMode()) {
@@ -469,7 +491,12 @@
     });
 
     var mapObject = $canvas.vectorMap('get', 'mapObject');
-    var markers = normalizeMarkers(config.markers || [], mapObject, styles.markerColor || '#FFFFFF');
+    var markers = normalizeMarkers(
+      config.markers || [],
+      mapObject,
+      styles.markerColor || '#FFFFFF',
+      styles.markerIconSize || 16
+    );
 
     if (markers.length && mapObject && typeof mapObject.addMarkers === 'function') {
       mapObject.addMarkers(markers);

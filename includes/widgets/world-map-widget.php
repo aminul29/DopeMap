@@ -174,6 +174,25 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 			)
 		);
 
+		$this->add_control(
+			'marker_icon_size',
+			array(
+				'label'      => esc_html__( 'Marker Icon Size', 'dope-map' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => array( 'px' ),
+				'range'      => array(
+					'px' => array(
+						'min' => 12,
+						'max' => 96,
+					),
+				),
+				'default'    => array(
+					'size' => 16,
+					'unit' => 'px',
+				),
+			)
+		);
+
 		$this->end_controls_section();
 
 		$this->start_controls_section(
@@ -299,6 +318,7 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 			'regionHover'      => sanitize_hex_color( $settings['region_hover_color'] ),
 			'markerColor'      => sanitize_hex_color( $settings['marker_color'] ),
 			'markerHoverColor' => sanitize_hex_color( $settings['marker_hover_color'] ),
+			'markerIconSize'   => isset( $settings['marker_icon_size']['size'] ) ? max( 12, min( 96, (int) $settings['marker_icon_size']['size'] ) ) : 16,
 		);
 
 		$markers = array();
