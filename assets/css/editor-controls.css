@@ -1,0 +1,80 @@
+.dopemap-nested-repeater {
+  border: 1px solid #d5d8dc;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fff;
+}
+
+.dopemap-nested-repeater__rows {
+  display: grid;
+  gap: 12px;
+}
+
+.dopemap-nested-repeater__row {
+  border: 1px solid #e2e5e8;
+  border-radius: 8px;
+  padding: 12px;
+  background: #f7f8fa;
+}
+
+.dopemap-nested-repeater__row-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.dopemap-nested-repeater__row-title {
+  font-weight: 600;
+  color: #1f2933;
+}
+
+.dopemap-nested-repeater__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dopemap-nested-repeater__action.elementor-button {
+  min-height: 28px;
+  padding: 0 10px;
+}
+
+.dopemap-nested-repeater__label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 500;
+  color: #1f2933;
+}
+
+.dopemap-nested-repeater__label input {
+  width: 100%;
+  margin-top: 6px;
+}
+
+.dopemap-nested-repeater__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: #3c434a;
+}
+
+.dopemap-nested-repeater__checkbox:last-child {
+  margin-bottom: 0;
+}
+
+.dopemap-nested-repeater__add.elementor-button {
+  margin-top: 12px;
+  width: 100%;
+  justify-content: center;
+}
+
+.dopemap-nested-repeater__empty {
+  padding: 10px 12px;
+  border: 1px dashed #ccd0d4;
+  border-radius: 6px;
+  color: #50575e;
+  background: #f9fafb;
+}

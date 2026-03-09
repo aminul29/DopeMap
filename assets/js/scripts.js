@@ -311,24 +311,106 @@
     return Math.max(min, Math.min(max, value));
   }
 
-  function setPopupContent($popup, markerData) {
+  function escapeHtml(value) {
+    return String(value || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function buildInfoPopupRows(popupRows) {
+    var rows = Array.isArray(popupRows) ? popupRows : [];
+
+    if (!rows.length) {
+      return '';
+    }
+
+    return rows
+      .map(function (row) {
+        var rel = [];
+
+        if (row.isExternal) {
+          rel.push('noopener', 'noreferrer');
+        }
+
+        if (row.nofollow) {
+          rel.push('nofollow');
+        }
+
+        return (
+          '<tr>' +
+          '<td>' +
+          escapeHtml(row.title || '') +
+          '</td>' +
+          '<td>' +
+          (row.linkUrl
+            ? '<a href="' +
+              escapeHtml(row.linkUrl) +
+              '"' +
+              (row.isExternal ? ' target="_blank"' : '') +
+              (rel.length ? ' rel="' + rel.join(' ') + '"' : '') +
+              '>' +
+              escapeHtml(row.linkUrl) +
+              '</a>'
+            : '') +
+          '</td>' +
+          '</tr>'
+        );
+      })
+      .join('');
+  }
+
+  function setPopupContent($popup, popupData) {
     var $title = $popup.find('.dope-map-popup__title');
     var $subtitle = $popup.find('.dope-map-popup__subtitle');
     var $imageWrap = $popup.find('.dope-map-popup__image-wrap');
     var $image = $popup.find('.dope-map-popup__image');
     var $button = $popup.find('.dope-map-popup__button');
+    var $infoTableWrap = $popup.find('.dope-map-popup__info-table-wrap');
+    var $infoTableBody = $popup.find('.dope-map-popup__info-table tbody');
+    var $empty = $popup.find('.dope-map-popup__empty');
+    var mode = popupData && popupData.mode ? popupData.mode : 'location';
 
-    $title.text(markerData.title || markerData.name || markerData.countryCode || '');
+    $infoTableWrap.hide();
+    $empty.hide();
+    $infoTableBody.empty();
 
-    if (markerData.subtitle) {
-      $subtitle.html(markerData.subtitle).show();
-    } else {
-      $subtitle.hide();
+    if (mode === 'info-table') {
+      $title.text(popupData.title || '');
+      $subtitle.hide().empty();
+      $image.attr('src', '');
+      $image.attr('alt', '');
+      $imageWrap.removeClass('is-visible');
+      $button
+        .text('')
+        .attr('href', '#')
+        .removeAttr('target')
+        .removeAttr('rel')
+        .removeClass('is-visible');
+
+      if (Array.isArray(popupData.popupRows) && popupData.popupRows.length) {
+        $infoTableBody.html(buildInfoPopupRows(popupData.popupRows));
+        $infoTableWrap.show();
+      } else {
+        $empty.show();
+      }
+
+      return;
     }
 
-    if (markerData.imageUrl) {
-      $image.attr('src', markerData.imageUrl);
-      $image.attr('alt', markerData.title || markerData.name || '');
+    $title.text(popupData.title || popupData.name || popupData.countryCode || '');
+
+    if (popupData.subtitle) {
+      $subtitle.html(popupData.subtitle).show();
+    } else {
+      $subtitle.hide().empty();
+    }
+
+    if (popupData.imageUrl) {
+      $image.attr('src', popupData.imageUrl);
+      $image.attr('alt', popupData.title || popupData.name || '');
       $imageWrap.addClass('is-visible');
     } else {
       $image.attr('src', '');
@@ -336,10 +418,10 @@
       $imageWrap.removeClass('is-visible');
     }
 
-    if (markerData.buttonText && markerData.buttonUrl) {
-      $button.text(markerData.buttonText).attr('href', markerData.buttonUrl);
+    if (popupData.buttonText && popupData.buttonUrl) {
+      $button.text(popupData.buttonText).attr('href', popupData.buttonUrl);
 
-      if (markerData.isExternal) {
+      if (popupData.isExternal) {
         $button.attr('target', '_blank').attr('rel', 'noopener noreferrer');
       } else {
         $button.removeAttr('target').removeAttr('rel');
@@ -356,13 +438,7 @@
     }
   }
 
-  function placePopup($widget, $popup, mapObject, markerItem) {
-    if (!mapObject || !markerItem || !validLatLng(markerItem.latLng) || !mapObject.latLngToPoint) {
-      return;
-    }
-
-    var point = mapObject.latLngToPoint(markerItem.latLng[0], markerItem.latLng[1]);
-
+  function placePopupAtPoint($widget, $popup, point) {
     if (!point) {
       return;
     }
@@ -386,6 +462,32 @@
     $popup.css({ left: left + 'px', top: top + 'px' });
   }
 
+  function placePopup($widget, $popup, mapObject, markerItem) {
+    if (!mapObject || !markerItem || !validLatLng(markerItem.latLng) || !mapObject.latLngToPoint) {
+      return;
+    }
+
+    placePopupAtPoint($widget, $popup, mapObject.latLngToPoint(markerItem.latLng[0], markerItem.latLng[1]));
+  }
+
+  function getElementPoint($widget, $element) {
+    if (!$widget.length || !$element.length) {
+      return null;
+    }
+
+    var widgetOffset = $widget.offset();
+    var elementOffset = $element.offset();
+
+    if (!widgetOffset || !elementOffset) {
+      return null;
+    }
+
+    return {
+      x: elementOffset.left - widgetOffset.left + $element.outerWidth() / 2,
+      y: elementOffset.top - widgetOffset.top,
+    };
+  }
+
   function initWidget($scope) {
     var $widget = $scope.hasClass('dope-map-widget')
       ? $scope
@@ -403,6 +505,7 @@
 
     var $canvas = $widget.find('.dope-map-canvas');
     var $popup = $widget.find('.dope-map-popup');
+    var $infoTable = $widget.find('.dope-map-info-table');
     var styles = config.styles || {};
 
     $canvas.vectorMap({
@@ -508,6 +611,27 @@
 
     $popup.find('.dope-map-popup__close').on('click', function () {
       $popup.prop('hidden', true);
+    });
+
+    $infoTable.on('click', '.dope-map-info-table__trigger', function (event) {
+      var index = Number($(event.currentTarget).attr('data-info-index'));
+      var infoRows = Array.isArray(config.infoTable) ? config.infoTable : [];
+      var infoRow = infoRows[index];
+      var point = getElementPoint($widget, $(event.currentTarget));
+
+      if (!infoRow || !point) {
+        return;
+      }
+
+      event.preventDefault();
+
+      setPopupContent($popup, {
+        mode: 'info-table',
+        title: infoRow.title || '',
+        popupRows: Array.isArray(infoRow.popupRows) ? infoRow.popupRows : [],
+      });
+
+      placePopupAtPoint($widget, $popup, point);
     });
 
     $widget.data('dopemap-initialized', true);

@@ -548,6 +548,57 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 		$this->end_controls_section();
 
 		$this->start_controls_section(
+			'section_info_table',
+			array(
+				'label' => esc_html__( 'Bottom Left Info Table', 'dope-map' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_CONTENT,
+			)
+		);
+
+		$info_table_repeater = new \Elementor\Repeater();
+
+		$info_table_repeater->add_control(
+			'row_title',
+			array(
+				'label'       => esc_html__( 'Title', 'dope-map' ),
+				'type'        => \Elementor\Controls_Manager::TEXT,
+				'placeholder' => esc_html__( 'Resources', 'dope-map' ),
+				'label_block' => true,
+			)
+		);
+
+		$info_table_repeater->add_control(
+			'row_description',
+			array(
+				'label'       => esc_html__( 'Description', 'dope-map' ),
+				'type'        => \Elementor\Controls_Manager::TEXTAREA,
+				'rows'        => 3,
+				'placeholder' => esc_html__( 'Short description shown in the bottom-left table.', 'dope-map' ),
+			)
+		);
+
+		$info_table_repeater->add_control(
+			'popup_rows',
+			array(
+				'label'       => esc_html__( 'Popup Rows', 'dope-map' ),
+				'type'        => 'dopemap_nested_repeater',
+				'description' => esc_html__( 'Each popup row adds a title and one link to the popup table.', 'dope-map' ),
+			)
+		);
+
+		$this->add_control(
+			'info_table_rows',
+			array(
+				'label'       => esc_html__( 'Info Table Rows', 'dope-map' ),
+				'type'        => \Elementor\Controls_Manager::REPEATER,
+				'fields'      => $info_table_repeater->get_controls(),
+				'title_field' => '{{{ row_title || "Info Row" }}}',
+			)
+		);
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
 			'section_locations',
 			array(
 				'label' => esc_html__( 'Locations', 'dope-map' ),
@@ -656,6 +707,84 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 	}
 
 	/**
+	 * Normalize popup rows from the custom nested repeater control.
+	 *
+	 * @param mixed $value Raw control value.
+	 * @return array
+	 */
+	protected function get_popup_rows_value( $value ) {
+		if ( is_string( $value ) ) {
+			$decoded = json_decode( wp_unslash( $value ), true );
+			$value   = is_array( $decoded ) ? $decoded : array();
+		}
+
+		if ( ! is_array( $value ) ) {
+			return array();
+		}
+
+		$popup_rows = array();
+
+		foreach ( $value as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+
+			$title = isset( $row['popup_title'] ) ? sanitize_text_field( $row['popup_title'] ) : '';
+			$link  = isset( $row['popup_link'] ) && is_array( $row['popup_link'] ) ? $row['popup_link'] : array();
+			$url   = ! empty( $link['url'] ) ? esc_url_raw( $link['url'] ) : '';
+
+			if ( '' === $title && '' === $url ) {
+				continue;
+			}
+
+			$popup_rows[] = array(
+				'title'      => $title,
+				'linkUrl'    => $url,
+				'isExternal' => ! empty( $link['is_external'] ),
+				'nofollow'   => ! empty( $link['nofollow'] ),
+			);
+		}
+
+		return $popup_rows;
+	}
+
+	/**
+	 * Prepare bottom-left info table rows for the frontend.
+	 *
+	 * @param mixed $rows Raw info table rows.
+	 * @return array
+	 */
+	protected function get_info_table_rows_value( $rows ) {
+		if ( ! is_array( $rows ) ) {
+			return array();
+		}
+
+		$prepared_rows = array();
+
+		foreach ( $rows as $row ) {
+			if ( ! is_array( $row ) ) {
+				continue;
+			}
+
+			$title       = isset( $row['row_title'] ) ? sanitize_text_field( $row['row_title'] ) : '';
+			$description = isset( $row['row_description'] ) ? sanitize_textarea_field( $row['row_description'] ) : '';
+			$popup_rows  = $this->get_popup_rows_value( $row['popup_rows'] ?? array() );
+
+			if ( '' === $title ) {
+				continue;
+			}
+
+			$prepared_rows[] = array(
+				'title'       => $title,
+				'description' => $description,
+				'popupRows'   => $popup_rows,
+			);
+		}
+
+		return $prepared_rows;
+	}
+
+	/**
 	 * Render widget output.
 	 *
 	 * @return void
@@ -674,6 +803,7 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 		);
 
 		$markers = array();
+		$info_table_rows = $this->get_info_table_rows_value( $settings['info_table_rows'] ?? array() );
 
 		if ( ! empty( $settings['locations'] ) && is_array( $settings['locations'] ) ) {
 			foreach ( $settings['locations'] as $location ) {
@@ -728,20 +858,57 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 		}
 
 		$map_config = array(
-			'styles'  => $styles,
-			'markers' => $markers,
+			'styles'    => $styles,
+			'markers'   => $markers,
+			'infoTable' => $info_table_rows,
 		);
 		?>
 		<div class="dope-map-widget" id="<?php echo esc_attr( $map_id ); ?>" data-map-config="<?php echo esc_attr( wp_json_encode( $map_config ) ); ?>">
 			<div class="dope-map-canvas" aria-label="<?php echo esc_attr__( 'Interactive world map', 'dope-map' ); ?>"></div>
+			<?php if ( ! empty( $info_table_rows ) ) : ?>
+				<div class="dope-map-info-table" aria-label="<?php echo esc_attr__( 'Map information table', 'dope-map' ); ?>">
+					<table class="dope-map-info-table__table">
+						<thead>
+							<tr>
+								<th scope="col"><?php echo esc_html__( 'Title', 'dope-map' ); ?></th>
+								<th scope="col"><?php echo esc_html__( 'Description', 'dope-map' ); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach ( $info_table_rows as $index => $row ) : ?>
+								<tr>
+									<td>
+										<button type="button" class="dope-map-info-table__trigger" data-info-index="<?php echo esc_attr( $index ); ?>">
+											<?php echo esc_html( $row['title'] ); ?>
+										</button>
+									</td>
+									<td class="dope-map-info-table__description"><?php echo esc_html( $row['description'] ); ?></td>
+								</tr>
+							<?php endforeach; ?>
+						</tbody>
+					</table>
+				</div>
+			<?php endif; ?>
 			<div class="dope-map-popup" hidden>
-				<button type="button" class="dope-map-popup__close" aria-label="<?php echo esc_attr__( 'Close location popup', 'dope-map' ); ?>">&times;</button>
+				<button type="button" class="dope-map-popup__close" aria-label="<?php echo esc_attr__( 'Close map popup', 'dope-map' ); ?>">&times;</button>
 				<div class="dope-map-popup__image-wrap">
 					<img class="dope-map-popup__image" src="" alt="" loading="lazy" />
 				</div>
 				<div class="dope-map-popup__content">
 					<h4 class="dope-map-popup__title"></h4>
 					<div class="dope-map-popup__subtitle"></div>
+					<div class="dope-map-popup__info-table-wrap">
+						<table class="dope-map-popup__info-table">
+							<thead>
+								<tr>
+									<th scope="col"><?php echo esc_html__( 'Title', 'dope-map' ); ?></th>
+									<th scope="col"><?php echo esc_html__( 'Links', 'dope-map' ); ?></th>
+								</tr>
+							</thead>
+							<tbody></tbody>
+						</table>
+					</div>
+					<div class="dope-map-popup__empty"><?php echo esc_html__( 'No links available.', 'dope-map' ); ?></div>
 					<a class="dope-map-popup__button" href="#"></a>
 				</div>
 			</div>

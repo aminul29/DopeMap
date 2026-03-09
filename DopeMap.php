@@ -2,7 +2,7 @@
 /**
  * Plugin Name: DopeMap for Elementor
  * Description: Interactive world map widget for Elementor with country markers and custom popups.
- * Version: 1.0.6
+ * Version: 1.0.8
  * Author: Aminul Islam
  * Text Domain: dope-map
  * Requires Plugins: elementor
@@ -20,7 +20,7 @@ final class DopeMap_Plugin {
 	/**
 	 * Plugin version.
 	 */
-	const VERSION = '1.0.6';
+	const VERSION = '1.0.8';
 
 	/**
 	 * Minimum Elementor version.
@@ -80,8 +80,18 @@ final class DopeMap_Plugin {
 		);
 
 		add_action(
+			'elementor/controls/register',
+			array( $this, 'register_controls' )
+		);
+
+		add_action(
 			'wp_enqueue_scripts',
 			array( $this, 'register_assets' )
+		);
+
+		add_action(
+			'elementor/editor/before_enqueue_scripts',
+			array( $this, 'register_editor_assets' )
 		);
 	}
 
@@ -169,6 +179,64 @@ final class DopeMap_Plugin {
 			self::VERSION,
 			true
 		);
+	}
+
+	/**
+	 * Register editor-only assets used by custom Elementor controls.
+	 *
+	 * @return void
+	 */
+	public function register_editor_assets() {
+		wp_register_style(
+			'dopemap-editor-control-style',
+			plugin_dir_url( __FILE__ ) . 'assets/css/editor-controls.css',
+			array( 'elementor-editor' ),
+			self::VERSION
+		);
+
+		wp_register_script(
+			'dopemap-editor-control-script',
+			plugin_dir_url( __FILE__ ) . 'assets/js/editor-controls.js',
+			array( 'jquery', 'elementor-editor' ),
+			self::VERSION,
+			true
+		);
+
+		wp_localize_script(
+			'dopemap-editor-control-script',
+			'DopeMapEditorControls',
+			array(
+				'rowLabel'      => esc_html__( 'Popup Row', 'dope-map' ),
+				'emptyState'    => esc_html__( 'No popup rows added yet.', 'dope-map' ),
+				'addRow'        => esc_html__( 'Add Popup Row', 'dope-map' ),
+				'duplicateRow'  => esc_html__( 'Duplicate', 'dope-map' ),
+				'removeRow'     => esc_html__( 'Remove', 'dope-map' ),
+				'moveUp'        => esc_html__( 'Up', 'dope-map' ),
+				'moveDown'      => esc_html__( 'Down', 'dope-map' ),
+				'titleLabel'    => esc_html__( 'Title', 'dope-map' ),
+				'urlLabel'      => esc_html__( 'Link URL', 'dope-map' ),
+				'externalLabel' => esc_html__( 'Open in new tab', 'dope-map' ),
+				'nofollowLabel' => esc_html__( 'Add nofollow', 'dope-map' ),
+			)
+		);
+	}
+
+	/**
+	 * Register custom Elementor controls.
+	 *
+	 * @param \Elementor\Controls_Manager $controls_manager Controls manager.
+	 * @return void
+	 */
+	public function register_controls( $controls_manager ) {
+		$control_file = __DIR__ . '/includes/controls/control-popup-rows.php';
+
+		if ( file_exists( $control_file ) ) {
+			require_once $control_file;
+		}
+
+		if ( class_exists( 'DopeMap_Control_Popup_Rows' ) ) {
+			$controls_manager->register( new \DopeMap_Control_Popup_Rows() );
+		}
 	}
 
 	/**
