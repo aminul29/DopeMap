@@ -2,7 +2,7 @@
 /**
  * Plugin Name: DopeMap for Elementor
  * Description: Interactive world map widget for Elementor with country markers and custom popups.
- * Version: 1.0.11
+ * Version: 1.0.12
  * Author: Aminul Islam
  * Text Domain: dope-map
  * Requires Plugins: elementor
@@ -20,7 +20,7 @@ final class DopeMap_Plugin {
 	/**
 	 * Plugin version.
 	 */
-	const VERSION = '1.0.11';
+	const VERSION = '1.0.12';
 
 	/**
 	 * Minimum Elementor version.

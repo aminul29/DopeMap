@@ -792,6 +792,7 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 				'label'       => esc_html__( 'Bottom Left Links', 'dope-map' ),
 				'type'        => \Elementor\Controls_Manager::REPEATER,
 				'fields'      => $info_table_repeater->get_controls(),
+				'prevent_empty' => false,
 				'title_field' => '{{{ row_title || "Link Trigger" }}}',
 			)
 		);
