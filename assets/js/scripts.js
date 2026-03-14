@@ -340,23 +340,14 @@
         }
 
         return (
-          '<tr>' +
-          '<td>' +
-          escapeHtml(row.title || '') +
-          '</td>' +
-          '<td>' +
-          (row.linkUrl
-            ? '<a href="' +
-              escapeHtml(row.linkUrl) +
-              '"' +
-              (row.isExternal ? ' target="_blank"' : '') +
-              (rel.length ? ' rel="' + rel.join(' ') + '"' : '') +
-              '>' +
-              escapeHtml(row.linkUrl) +
-              '</a>'
-            : '') +
-          '</td>' +
-          '</tr>'
+          '<a class="dope-map-popup__info-link" href="' +
+          escapeHtml(row.linkUrl || '#') +
+          '"' +
+          (row.isExternal ? ' target="_blank"' : '') +
+          (rel.length ? ' rel="' + rel.join(' ') + '"' : '') +
+          '>' +
+          escapeHtml(row.title || row.linkUrl || '') +
+          '</a>'
         );
       })
       .join('');
@@ -368,8 +359,8 @@
     var $imageWrap = $popup.find('.dope-map-popup__image-wrap');
     var $image = $popup.find('.dope-map-popup__image');
     var $button = $popup.find('.dope-map-popup__button');
-    var $infoTableWrap = $popup.find('.dope-map-popup__info-table-wrap');
-    var $infoTableBody = $popup.find('.dope-map-popup__info-table tbody');
+    var $infoTableWrap = $popup.find('.dope-map-popup__link-list-wrap');
+    var $infoTableBody = $popup.find('.dope-map-popup__link-list');
     var $empty = $popup.find('.dope-map-popup__empty');
     var mode = popupData && popupData.mode ? popupData.mode : 'location';
 
@@ -438,54 +429,18 @@
     }
   }
 
-  function placePopupAtPoint($widget, $popup, point) {
-    if (!point) {
-      return;
-    }
+  function openPopup($widget, $popup) {
+    var $backdrop = $widget.find('.dope-map-popup-backdrop');
 
+    $backdrop.prop('hidden', false);
     $popup.prop('hidden', false);
-
-    var widgetWidth = $widget.outerWidth();
-    var widgetHeight = $widget.outerHeight();
-    var popupWidth = $popup.outerWidth();
-    var popupHeight = $popup.outerHeight();
-
-    var left = point.x + 12;
-    var top = point.y - popupHeight - 12;
-
-    left = clamp(left, 8, Math.max(8, widgetWidth - popupWidth - 8));
-
-    if (top < 8) {
-      top = clamp(point.y + 12, 8, Math.max(8, widgetHeight - popupHeight - 8));
-    }
-
-    $popup.css({ left: left + 'px', top: top + 'px' });
   }
 
-  function placePopup($widget, $popup, mapObject, markerItem) {
-    if (!mapObject || !markerItem || !validLatLng(markerItem.latLng) || !mapObject.latLngToPoint) {
-      return;
-    }
+  function closePopup($widget, $popup) {
+    var $backdrop = $widget.find('.dope-map-popup-backdrop');
 
-    placePopupAtPoint($widget, $popup, mapObject.latLngToPoint(markerItem.latLng[0], markerItem.latLng[1]));
-  }
-
-  function getElementPoint($widget, $element) {
-    if (!$widget.length || !$element.length) {
-      return null;
-    }
-
-    var widgetOffset = $widget.offset();
-    var elementOffset = $element.offset();
-
-    if (!widgetOffset || !elementOffset) {
-      return null;
-    }
-
-    return {
-      x: elementOffset.left - widgetOffset.left + $element.outerWidth() / 2,
-      y: elementOffset.top - widgetOffset.top,
-    };
+    $backdrop.prop('hidden', true);
+    $popup.prop('hidden', true);
   }
 
   function initWidget($scope) {
@@ -504,6 +459,7 @@
     }
 
     var $canvas = $widget.find('.dope-map-canvas');
+    var $stage = $widget.find('.dope-map-stage');
     var $popup = $widget.find('.dope-map-popup');
     var $infoTable = $widget.find('.dope-map-info-table');
     var styles = config.styles || {};
@@ -554,7 +510,7 @@
         }
 
         setPopupContent($popup, markerItem.config._dope);
-        placePopup($widget, $popup, mapObject, markerItem.config);
+        openPopup($widget, $popup);
       },
       onMarkerClick: function (event, index) {
         var mapObject = $canvas.vectorMap('get', 'mapObject');
@@ -566,7 +522,7 @@
 
         event.preventDefault();
         setPopupContent($popup, markerItem.config._dope);
-        placePopup($widget, $popup, mapObject, markerItem.config);
+        openPopup($widget, $popup);
       },
       onRegionClick: function (event, countryCode) {
         var mapObject = $canvas.vectorMap('get', 'mapObject');
@@ -605,21 +561,20 @@
       mapObject.addMarkers(markers);
     }
 
-    $widget.on('mouseleave', function () {
-      $popup.prop('hidden', true);
+    $popup.find('.dope-map-popup__close').on('click', function () {
+      closePopup($widget, $popup);
     });
 
-    $popup.find('.dope-map-popup__close').on('click', function () {
-      $popup.prop('hidden', true);
+    $widget.find('.dope-map-popup-backdrop').on('click', function () {
+      closePopup($widget, $popup);
     });
 
     $infoTable.on('click', '.dope-map-info-table__trigger', function (event) {
       var index = Number($(event.currentTarget).attr('data-info-index'));
       var infoRows = Array.isArray(config.infoTable) ? config.infoTable : [];
       var infoRow = infoRows[index];
-      var point = getElementPoint($widget, $(event.currentTarget));
 
-      if (!infoRow || !point) {
+      if (!infoRow) {
         return;
       }
 
@@ -631,7 +586,13 @@
         popupRows: Array.isArray(infoRow.popupRows) ? infoRow.popupRows : [],
       });
 
-      placePopupAtPoint($widget, $popup, point);
+      openPopup($widget, $popup);
+    });
+
+    $(document).on('keydown.dopemap-' + ($widget.attr('id') || ''), function (event) {
+      if (event.key === 'Escape') {
+        closePopup($widget, $popup);
+      }
     });
 
     $widget.data('dopemap-initialized', true);

@@ -78,15 +78,32 @@
     },
 
     onReady: function () {
+      this.syncInputFromValue();
       this.renderRows();
     },
 
-    getRows: function () {
+    getControlValueNormalized: function () {
+      if (typeof this.getControlValue === 'function') {
+        return normalizeRows(this.getControlValue());
+      }
+
       return normalizeRows(this.ui.input.val());
+    },
+
+    syncInputFromValue: function () {
+      this.ui.input.val(JSON.stringify(this.getControlValueNormalized()));
+    },
+
+    getRows: function () {
+      return this.getControlValueNormalized();
     },
 
     saveRows: function (rows) {
       var serialized = JSON.stringify(normalizeRows(rows));
+
+      if (typeof this.setValue === 'function') {
+        this.setValue(serialized);
+      }
 
       this.ui.input.val(serialized).trigger('input').trigger('change');
     },
@@ -208,6 +225,7 @@
       }
 
       this.ui.rows.html(html);
+      this.syncInputFromValue();
     },
 
     onAddRow: function (event) {

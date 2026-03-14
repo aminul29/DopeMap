@@ -548,9 +548,219 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 		$this->end_controls_section();
 
 		$this->start_controls_section(
+			'section_bottom_links_style',
+			array(
+				'label' => esc_html__( 'Bottom Left Links', 'dope-map' ),
+				'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
+			)
+		);
+
+		$this->add_control(
+			'bottom_links_text_color',
+			array(
+				'label'     => esc_html__( 'Text Color', 'dope-map' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'default'   => '#FFFFFF',
+				'selectors' => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-info-links-color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'bottom_links_hover_color',
+			array(
+				'label'     => esc_html__( 'Hover Color', 'dope-map' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'default'   => '#B3D4FF',
+				'selectors' => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-info-links-hover-color: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'bottom_links_background_color',
+			array(
+				'label'     => esc_html__( 'Background Color', 'dope-map' ),
+				'type'      => \Elementor\Controls_Manager::COLOR,
+				'default'   => 'transparent',
+				'selectors' => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-info-links-bg: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Border::get_type(),
+			array(
+				'name'     => 'bottom_links_border',
+				'selector' => '{{WRAPPER}} .dope-map-info-table',
+			)
+		);
+
+		$this->add_group_control(
+			\Elementor\Group_Control_Typography::get_type(),
+			array(
+				'name'     => 'bottom_links_typography',
+				'selector' => '{{WRAPPER}} .dope-map-info-table__trigger',
+			)
+		);
+
+		$this->add_responsive_control(
+			'bottom_links_gap',
+			array(
+				'label'      => esc_html__( 'Link Gap', 'dope-map' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => array( 'px' ),
+				'range'      => array(
+					'px' => array(
+						'min' => 0,
+						'max' => 48,
+					),
+				),
+				'default'    => array(
+					'size' => 12,
+					'unit' => 'px',
+				),
+				'selectors'  => array(
+					'{{WRAPPER}} .dope-map-info-table__links' => 'gap: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
+			'bottom_links_padding',
+			array(
+				'label'      => esc_html__( 'Padding', 'dope-map' ),
+				'type'       => \Elementor\Controls_Manager::DIMENSIONS,
+				'size_units' => array( 'px', '%' ),
+				'default'    => array(
+					'top'      => 14,
+					'right'    => 16,
+					'bottom'   => 14,
+					'left'     => 16,
+					'unit'     => 'px',
+					'isLinked' => false,
+				),
+				'selectors'  => array(
+					'{{WRAPPER}} .dope-map-info-table__links' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_control(
+			'bottom_links_alignment',
+			array(
+				'label'     => esc_html__( 'Alignment', 'dope-map' ),
+				'type'      => \Elementor\Controls_Manager::CHOOSE,
+				'default'   => 'flex-start',
+				'options'   => array(
+					'flex-start' => array(
+						'title' => esc_html__( 'Start', 'dope-map' ),
+						'icon'  => 'eicon-text-align-left',
+					),
+					'center'     => array(
+						'title' => esc_html__( 'Center', 'dope-map' ),
+						'icon'  => 'eicon-text-align-center',
+					),
+					'flex-end'   => array(
+						'title' => esc_html__( 'End', 'dope-map' ),
+						'icon'  => 'eicon-text-align-right',
+					),
+				),
+				'selectors' => array(
+					'{{WRAPPER}} .dope-map-info-table__links' => 'justify-content: {{VALUE}};',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
+			'bottom_links_left',
+			array(
+				'label'      => esc_html__( 'Left', 'dope-map' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => array( 'px' ),
+				'range'      => array(
+					'px' => array(
+						'min' => 0,
+						'max' => 240,
+					),
+				),
+				'default'    => array(
+					'size' => 16,
+					'unit' => 'px',
+				),
+				'selectors'  => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-info-links-left: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
+			'bottom_links_right',
+			array(
+				'label'      => esc_html__( 'Right', 'dope-map' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => array( 'px' ),
+				'range'      => array(
+					'px' => array(
+						'min' => 0,
+						'max' => 240,
+					),
+				),
+				'selectors'  => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-info-links-right: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
+			'bottom_links_top',
+			array(
+				'label'      => esc_html__( 'Top', 'dope-map' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => array( 'px' ),
+				'range'      => array(
+					'px' => array(
+						'min' => 0,
+						'max' => 240,
+					),
+				),
+				'selectors'  => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-info-links-top: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->add_responsive_control(
+			'bottom_links_bottom',
+			array(
+				'label'      => esc_html__( 'Bottom', 'dope-map' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => array( 'px' ),
+				'range'      => array(
+					'px' => array(
+						'min' => 0,
+						'max' => 240,
+					),
+				),
+				'default'    => array(
+					'size' => 16,
+					'unit' => 'px',
+				),
+				'selectors'  => array(
+					'{{WRAPPER}} .dope-map-widget' => '--dope-info-links-bottom: {{SIZE}}{{UNIT}};',
+				),
+			)
+		);
+
+		$this->end_controls_section();
+
+		$this->start_controls_section(
 			'section_info_table',
 			array(
-				'label' => esc_html__( 'Bottom Left Info Table', 'dope-map' ),
+				'label' => esc_html__( 'Bottom Left Links', 'dope-map' ),
 				'tab'   => \Elementor\Controls_Manager::TAB_CONTENT,
 			)
 		);
@@ -568,31 +778,21 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 		);
 
 		$info_table_repeater->add_control(
-			'row_description',
-			array(
-				'label'       => esc_html__( 'Description', 'dope-map' ),
-				'type'        => \Elementor\Controls_Manager::TEXTAREA,
-				'rows'        => 3,
-				'placeholder' => esc_html__( 'Short description shown in the bottom-left table.', 'dope-map' ),
-			)
-		);
-
-		$info_table_repeater->add_control(
 			'popup_rows',
 			array(
-				'label'       => esc_html__( 'Popup Rows', 'dope-map' ),
+				'label'       => esc_html__( 'Popup Links', 'dope-map' ),
 				'type'        => 'dopemap_nested_repeater',
-				'description' => esc_html__( 'Each popup row adds a title and one link to the popup table.', 'dope-map' ),
+				'description' => esc_html__( 'Each popup row adds one link to the popup list.', 'dope-map' ),
 			)
 		);
 
 		$this->add_control(
 			'info_table_rows',
 			array(
-				'label'       => esc_html__( 'Info Table Rows', 'dope-map' ),
+				'label'       => esc_html__( 'Bottom Left Links', 'dope-map' ),
 				'type'        => \Elementor\Controls_Manager::REPEATER,
 				'fields'      => $info_table_repeater->get_controls(),
-				'title_field' => '{{{ row_title || "Info Row" }}}',
+				'title_field' => '{{{ row_title || "Link Trigger" }}}',
 			)
 		);
 
@@ -714,8 +914,19 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 	 */
 	protected function get_popup_rows_value( $value ) {
 		if ( is_string( $value ) ) {
-			$decoded = json_decode( wp_unslash( $value ), true );
-			$value   = is_array( $decoded ) ? $decoded : array();
+			$raw_value = wp_unslash( $value );
+			$decoded   = json_decode( $raw_value, true );
+
+			if ( ! is_array( $decoded ) ) {
+				$decoded = json_decode( html_entity_decode( $raw_value, ENT_QUOTES, 'UTF-8' ), true );
+			}
+
+			if ( ! is_array( $decoded ) ) {
+				$maybe_value = maybe_unserialize( $raw_value );
+				$decoded     = is_array( $maybe_value ) ? $maybe_value : array();
+			}
+
+			$value = $decoded;
 		}
 
 		if ( ! is_array( $value ) ) {
@@ -725,13 +936,45 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 		$popup_rows = array();
 
 		foreach ( $value as $row ) {
+			if ( is_object( $row ) ) {
+				$row = (array) $row;
+			}
+
+			if ( is_string( $row ) ) {
+				$decoded_row = json_decode( html_entity_decode( wp_unslash( $row ), ENT_QUOTES, 'UTF-8' ), true );
+				$row         = is_array( $decoded_row ) ? $decoded_row : array();
+			}
+
 			if ( ! is_array( $row ) ) {
 				continue;
 			}
 
 			$title = isset( $row['popup_title'] ) ? sanitize_text_field( $row['popup_title'] ) : '';
-			$link  = isset( $row['popup_link'] ) && is_array( $row['popup_link'] ) ? $row['popup_link'] : array();
-			$url   = ! empty( $link['url'] ) ? esc_url_raw( $link['url'] ) : '';
+			$link  = isset( $row['popup_link'] ) ? $row['popup_link'] : array();
+
+			if ( is_object( $link ) ) {
+				$link = (array) $link;
+			}
+
+			if ( is_string( $link ) ) {
+				$decoded_link = json_decode( html_entity_decode( wp_unslash( $link ), ENT_QUOTES, 'UTF-8' ), true );
+				$link         = is_array( $decoded_link ) ? $decoded_link : array();
+			}
+
+			if ( ! is_array( $link ) ) {
+				$link = array();
+			}
+
+			$url = '';
+
+			if ( ! empty( $link['url'] ) ) {
+				$url = esc_url_raw( $link['url'] );
+			} elseif ( ! empty( $row['popup_link_url'] ) ) {
+				$url = esc_url_raw( $row['popup_link_url'] );
+			}
+
+			$is_external = ! empty( $link['is_external'] ) || ! empty( $row['popup_link_external'] );
+			$nofollow    = ! empty( $link['nofollow'] ) || ! empty( $row['popup_link_nofollow'] );
 
 			if ( '' === $title && '' === $url ) {
 				continue;
@@ -740,8 +983,8 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 			$popup_rows[] = array(
 				'title'      => $title,
 				'linkUrl'    => $url,
-				'isExternal' => ! empty( $link['is_external'] ),
-				'nofollow'   => ! empty( $link['nofollow'] ),
+				'isExternal' => $is_external,
+				'nofollow'   => $nofollow,
 			);
 		}
 
@@ -749,7 +992,7 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 	}
 
 	/**
-	 * Prepare bottom-left info table rows for the frontend.
+	 * Prepare bottom-left link triggers for the frontend.
 	 *
 	 * @param mixed $rows Raw info table rows.
 	 * @return array
@@ -766,18 +1009,16 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 				continue;
 			}
 
-			$title       = isset( $row['row_title'] ) ? sanitize_text_field( $row['row_title'] ) : '';
-			$description = isset( $row['row_description'] ) ? sanitize_textarea_field( $row['row_description'] ) : '';
-			$popup_rows  = $this->get_popup_rows_value( $row['popup_rows'] ?? array() );
+			$title      = isset( $row['row_title'] ) ? sanitize_text_field( $row['row_title'] ) : '';
+			$popup_rows = $this->get_popup_rows_value( $row['popup_rows'] ?? array() );
 
 			if ( '' === $title ) {
 				continue;
 			}
 
 			$prepared_rows[] = array(
-				'title'       => $title,
-				'description' => $description,
-				'popupRows'   => $popup_rows,
+				'title'     => $title,
+				'popupRows' => $popup_rows,
 			);
 		}
 
@@ -864,53 +1105,35 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 		);
 		?>
 		<div class="dope-map-widget" id="<?php echo esc_attr( $map_id ); ?>" data-map-config="<?php echo esc_attr( wp_json_encode( $map_config ) ); ?>">
-			<div class="dope-map-canvas" aria-label="<?php echo esc_attr__( 'Interactive world map', 'dope-map' ); ?>"></div>
-			<?php if ( ! empty( $info_table_rows ) ) : ?>
-				<div class="dope-map-info-table" aria-label="<?php echo esc_attr__( 'Map information table', 'dope-map' ); ?>">
-					<table class="dope-map-info-table__table">
-						<thead>
-							<tr>
-								<th scope="col"><?php echo esc_html__( 'Title', 'dope-map' ); ?></th>
-								<th scope="col"><?php echo esc_html__( 'Description', 'dope-map' ); ?></th>
-							</tr>
-						</thead>
-						<tbody>
-							<?php foreach ( $info_table_rows as $index => $row ) : ?>
-								<tr>
-									<td>
-										<button type="button" class="dope-map-info-table__trigger" data-info-index="<?php echo esc_attr( $index ); ?>">
-											<?php echo esc_html( $row['title'] ); ?>
-										</button>
-									</td>
-									<td class="dope-map-info-table__description"><?php echo esc_html( $row['description'] ); ?></td>
-								</tr>
-							<?php endforeach; ?>
-						</tbody>
-					</table>
-				</div>
-			<?php endif; ?>
-			<div class="dope-map-popup" hidden>
-				<button type="button" class="dope-map-popup__close" aria-label="<?php echo esc_attr__( 'Close map popup', 'dope-map' ); ?>">&times;</button>
-				<div class="dope-map-popup__image-wrap">
-					<img class="dope-map-popup__image" src="" alt="" loading="lazy" />
-				</div>
-				<div class="dope-map-popup__content">
-					<h4 class="dope-map-popup__title"></h4>
-					<div class="dope-map-popup__subtitle"></div>
-					<div class="dope-map-popup__info-table-wrap">
-						<table class="dope-map-popup__info-table">
-							<thead>
-								<tr>
-									<th scope="col"><?php echo esc_html__( 'Title', 'dope-map' ); ?></th>
-									<th scope="col"><?php echo esc_html__( 'Links', 'dope-map' ); ?></th>
-								</tr>
-							</thead>
-							<tbody></tbody>
-						</table>
+			<div class="dope-map-stage">
+				<div class="dope-map-canvas" aria-label="<?php echo esc_attr__( 'Interactive world map', 'dope-map' ); ?>"></div>
+				<div class="dope-map-popup-backdrop" hidden></div>
+				<div class="dope-map-popup" hidden>
+					<button type="button" class="dope-map-popup__close" aria-label="<?php echo esc_attr__( 'Close map popup', 'dope-map' ); ?>">&times;</button>
+					<div class="dope-map-popup__image-wrap">
+						<img class="dope-map-popup__image" src="" alt="" loading="lazy" />
 					</div>
-					<div class="dope-map-popup__empty"><?php echo esc_html__( 'No links available.', 'dope-map' ); ?></div>
-					<a class="dope-map-popup__button" href="#"></a>
+					<div class="dope-map-popup__content">
+						<h4 class="dope-map-popup__title"></h4>
+						<div class="dope-map-popup__subtitle"></div>
+						<div class="dope-map-popup__link-list-wrap">
+							<div class="dope-map-popup__link-list"></div>
+						</div>
+						<div class="dope-map-popup__empty"><?php echo esc_html__( 'No links available.', 'dope-map' ); ?></div>
+						<a class="dope-map-popup__button" href="#"></a>
+					</div>
 				</div>
+				<?php if ( ! empty( $info_table_rows ) ) : ?>
+					<div class="dope-map-info-table" aria-label="<?php echo esc_attr__( 'Map links', 'dope-map' ); ?>">
+						<div class="dope-map-info-table__links">
+							<?php foreach ( $info_table_rows as $index => $row ) : ?>
+								<a class="dope-map-info-table__trigger" href="#" data-info-index="<?php echo esc_attr( $index ); ?>">
+									<?php echo esc_html( $row['title'] ); ?>
+								</a>
+							<?php endforeach; ?>
+						</div>
+					</div>
+				<?php endif; ?>
 			</div>
 		</div>
 		<?php
