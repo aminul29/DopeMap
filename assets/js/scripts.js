@@ -320,59 +320,21 @@
       .replace(/'/g, '&#039;');
   }
 
-  function buildInfoPopupRows(popupRows) {
-    var rows = Array.isArray(popupRows) ? popupRows : [];
-
-    if (!rows.length) {
-      return '';
-    }
-
-    return rows
-      .map(function (row) {
-        var rel = [];
-
-        if (row.isExternal) {
-          rel.push('noopener', 'noreferrer');
-        }
-
-        if (row.nofollow) {
-          rel.push('nofollow');
-        }
-
-        return (
-          '<li class="dope-map-popup__link-item">' +
-          '<a class="dope-map-popup__info-link" href="' +
-          escapeHtml(row.linkUrl || '#') +
-          '"' +
-          (row.isExternal ? ' target="_blank"' : '') +
-          (rel.length ? ' rel="' + rel.join(' ') + '"' : '') +
-          '>' +
-          escapeHtml(row.title || row.linkUrl || '') +
-          '</a>' +
-          '</li>'
-        );
-      })
-      .join('');
-  }
-
   function setPopupContent($popup, popupData) {
     var $title = $popup.find('.dope-map-popup__title');
     var $subtitle = $popup.find('.dope-map-popup__subtitle');
     var $imageWrap = $popup.find('.dope-map-popup__image-wrap');
     var $image = $popup.find('.dope-map-popup__image');
     var $button = $popup.find('.dope-map-popup__button');
-    var $infoTableWrap = $popup.find('.dope-map-popup__link-list-wrap');
-    var $infoTableBody = $popup.find('.dope-map-popup__link-list');
-    var $empty = $popup.find('.dope-map-popup__empty');
     var mode = popupData && popupData.mode ? popupData.mode : 'location';
-
-    $infoTableWrap.hide();
-    $empty.hide();
-    $infoTableBody.empty();
 
     if (mode === 'info-table') {
       $title.text(popupData.title || '');
-      $subtitle.hide().empty();
+      if (popupData.popupContent) {
+        $subtitle.html(popupData.popupContent).show();
+      } else {
+        $subtitle.hide().empty();
+      }
       $image.attr('src', '');
       $image.attr('alt', '');
       $imageWrap.removeClass('is-visible');
@@ -382,13 +344,6 @@
         .removeAttr('target')
         .removeAttr('rel')
         .removeClass('is-visible');
-
-      if (Array.isArray(popupData.popupRows) && popupData.popupRows.length) {
-        $infoTableBody.html(buildInfoPopupRows(popupData.popupRows));
-        $infoTableWrap.show();
-      } else {
-        $empty.show();
-      }
 
       return;
     }
@@ -585,7 +540,7 @@
       setPopupContent($popup, {
         mode: 'info-table',
         title: infoRow.title || '',
-        popupRows: Array.isArray(infoRow.popupRows) ? infoRow.popupRows : [],
+        popupContent: infoRow.popupContent || '',
       });
 
       openPopup($widget, $popup);

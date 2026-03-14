@@ -778,11 +778,11 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 		);
 
 		$info_table_repeater->add_control(
-			'popup_rows',
+			'popup_content',
 			array(
-				'label'       => esc_html__( 'Popup Links', 'dope-map' ),
-				'type'        => 'dopemap_nested_repeater',
-				'description' => esc_html__( 'Each popup row adds one link to the popup list.', 'dope-map' ),
+				'label'   => esc_html__( 'Popup Content', 'dope-map' ),
+				'type'    => \Elementor\Controls_Manager::WYSIWYG,
+				'default' => '',
 			)
 		);
 
@@ -907,91 +907,6 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 	}
 
 	/**
-	 * Normalize popup rows from the custom nested repeater control.
-	 *
-	 * @param mixed $value Raw control value.
-	 * @return array
-	 */
-	protected function get_popup_rows_value( $value ) {
-		if ( is_string( $value ) ) {
-			$raw_value = wp_unslash( $value );
-			$decoded   = json_decode( $raw_value, true );
-
-			if ( ! is_array( $decoded ) ) {
-				$decoded = json_decode( html_entity_decode( $raw_value, ENT_QUOTES, 'UTF-8' ), true );
-			}
-
-			if ( ! is_array( $decoded ) ) {
-				$maybe_value = maybe_unserialize( $raw_value );
-				$decoded     = is_array( $maybe_value ) ? $maybe_value : array();
-			}
-
-			$value = $decoded;
-		}
-
-		if ( ! is_array( $value ) ) {
-			return array();
-		}
-
-		$popup_rows = array();
-
-		foreach ( $value as $row ) {
-			if ( is_object( $row ) ) {
-				$row = (array) $row;
-			}
-
-			if ( is_string( $row ) ) {
-				$decoded_row = json_decode( html_entity_decode( wp_unslash( $row ), ENT_QUOTES, 'UTF-8' ), true );
-				$row         = is_array( $decoded_row ) ? $decoded_row : array();
-			}
-
-			if ( ! is_array( $row ) ) {
-				continue;
-			}
-
-			$title = isset( $row['popup_title'] ) ? sanitize_text_field( $row['popup_title'] ) : '';
-			$link  = isset( $row['popup_link'] ) ? $row['popup_link'] : array();
-
-			if ( is_object( $link ) ) {
-				$link = (array) $link;
-			}
-
-			if ( is_string( $link ) ) {
-				$decoded_link = json_decode( html_entity_decode( wp_unslash( $link ), ENT_QUOTES, 'UTF-8' ), true );
-				$link         = is_array( $decoded_link ) ? $decoded_link : array();
-			}
-
-			if ( ! is_array( $link ) ) {
-				$link = array();
-			}
-
-			$url = '';
-
-			if ( ! empty( $link['url'] ) ) {
-				$url = esc_url_raw( $link['url'] );
-			} elseif ( ! empty( $row['popup_link_url'] ) ) {
-				$url = esc_url_raw( $row['popup_link_url'] );
-			}
-
-			$is_external = ! empty( $link['is_external'] ) || ! empty( $row['popup_link_external'] );
-			$nofollow    = ! empty( $link['nofollow'] ) || ! empty( $row['popup_link_nofollow'] );
-
-			if ( '' === $title && '' === $url ) {
-				continue;
-			}
-
-			$popup_rows[] = array(
-				'title'      => $title,
-				'linkUrl'    => $url,
-				'isExternal' => $is_external,
-				'nofollow'   => $nofollow,
-			);
-		}
-
-		return $popup_rows;
-	}
-
-	/**
 	 * Prepare bottom-left link triggers for the frontend.
 	 *
 	 * @param mixed $rows Raw info table rows.
@@ -1009,16 +924,16 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 				continue;
 			}
 
-			$title      = isset( $row['row_title'] ) ? sanitize_text_field( $row['row_title'] ) : '';
-			$popup_rows = $this->get_popup_rows_value( $row['popup_rows'] ?? array() );
+			$title         = isset( $row['row_title'] ) ? sanitize_text_field( $row['row_title'] ) : '';
+			$popup_content = isset( $row['popup_content'] ) ? wp_kses_post( $row['popup_content'] ) : '';
 
 			if ( '' === $title ) {
 				continue;
 			}
 
 			$prepared_rows[] = array(
-				'title'     => $title,
-				'popupRows' => $popup_rows,
+				'title'        => $title,
+				'popupContent' => $popup_content,
 			);
 		}
 
@@ -1116,10 +1031,6 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 					<div class="dope-map-popup__content">
 						<h4 class="dope-map-popup__title"></h4>
 						<div class="dope-map-popup__subtitle"></div>
-						<div class="dope-map-popup__link-list-wrap">
-							<div class="dope-map-popup__link-list"></div>
-						</div>
-						<div class="dope-map-popup__empty"><?php echo esc_html__( 'No links available.', 'dope-map' ); ?></div>
 						<a class="dope-map-popup__button" href="#"></a>
 					</div>
 				</div>
