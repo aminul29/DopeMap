@@ -74,6 +74,16 @@
       },
       custom_lat: lat,
       custom_lng: lng,
+      marker_horizontal_orientation: 'right',
+      marker_horizontal_offset: {
+        size: 0,
+        unit: 'px',
+      },
+      marker_vertical_orientation: 'top',
+      marker_vertical_offset: {
+        size: 0,
+        unit: 'px',
+      },
     };
   }
 
@@ -177,17 +187,45 @@
     return getCountryCenterLatLng(mapObject, countryCode);
   }
 
+  function getMarkerOffsets(marker) {
+    var horizontalOffset =
+      marker && marker.marker_horizontal_offset && typeof marker.marker_horizontal_offset === 'object'
+        ? marker.marker_horizontal_offset.size
+        : marker && marker.offsetX;
+    var verticalOffset =
+      marker && marker.marker_vertical_offset && typeof marker.marker_vertical_offset === 'object'
+        ? marker.marker_vertical_offset.size
+        : marker && marker.offsetY;
+
+    horizontalOffset = getMarkerOffsetValue(horizontalOffset);
+    verticalOffset = getMarkerOffsetValue(verticalOffset);
+
+    if ((marker && marker.marker_horizontal_orientation) === 'left') {
+      horizontalOffset *= -1;
+    }
+
+    if ((marker && marker.marker_vertical_orientation) === 'top') {
+      verticalOffset *= -1;
+    }
+
+    return {
+      x: horizontalOffset,
+      y: verticalOffset,
+    };
+  }
+
   function addEditorMarker(mapObject, location, markerColor, markerIconSize) {
     if (!mapObject || typeof mapObject.addMarker !== 'function' || !validLatLng([location.custom_lat, location.custom_lng])) {
       return;
     }
 
     var nextKey = 'dope_runtime_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+    var offsets = getMarkerOffsets(location);
 
     mapObject.addMarker(nextKey, {
       latLng: [location.custom_lat, location.custom_lng],
       name: location.marker_label || location.country_code || 'Location',
-      style: getMarkerVisualStyle(markerColor, markerIconSize),
+      style: getMarkerVisualStyle(markerColor, markerIconSize, offsets.x, offsets.y),
       _dope: {
         countryCode: location.country_code,
         name: location.marker_label,
@@ -251,13 +289,25 @@
     return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
   }
 
-  function getMarkerVisualStyle(markerColor, markerIconSize) {
+  function getMarkerOffsetValue(offset) {
+    var parsed = Number(offset);
+
+    if (!Number.isFinite(parsed)) {
+      return 0;
+    }
+
+    return Math.max(-120, Math.min(120, Math.round(parsed)));
+  }
+
+  function getMarkerVisualStyle(markerColor, markerIconSize, markerOffsetX, markerOffsetY) {
     var safeSize = getMarkerIconSize(markerIconSize);
+    var safeOffsetX = getMarkerOffsetValue(markerOffsetX);
+    var safeOffsetY = getMarkerOffsetValue(markerOffsetY);
 
     return {
       image: {
         url: getMarkerIconDataUrl(markerColor, safeSize),
-        offset: [0, -Math.round(safeSize / 2)],
+        offset: [safeOffsetX, -Math.round(safeSize / 2) + safeOffsetY],
       },
     };
   }
@@ -291,6 +341,7 @@
       var latLng = validLatLng(marker.latLng)
         ? [Number(marker.latLng[0]), Number(marker.latLng[1])]
         : getCountryCenterLatLng(mapObject, marker.countryCode);
+      var offsets = getMarkerOffsets(marker);
 
       if (!validLatLng(latLng)) {
         return;
@@ -299,7 +350,9 @@
       prepared.push({
         latLng: latLng,
         name: marker.name || marker.countryCode || 'Location',
-        style: getMarkerVisualStyle(markerColor, markerIconSize),
+        style: getMarkerVisualStyle(markerColor, markerIconSize, offsets.x, offsets.y),
+        offsetX: offsets.x,
+        offsetY: offsets.y,
         _dope: marker,
       });
     });
@@ -339,8 +392,8 @@
       $('<div class="dope-map-marker-label"></div>')
         .text(marker.name)
         .css({
-          left: point.x + Math.max(10, safeMarkerIconSize * 0.55) + 'px',
-          top: point.y - Math.round(safeMarkerIconSize * 0.52) + 'px',
+          left: point.x + getMarkerOffsetValue(marker.offsetX) + Math.max(10, safeMarkerIconSize * 0.55) + 'px',
+          top: point.y + getMarkerOffsetValue(marker.offsetY) - Math.round(safeMarkerIconSize * 0.52) + 'px',
         })
         .appendTo($labels);
     });

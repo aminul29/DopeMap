@@ -828,6 +828,95 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 		);
 
 		$repeater->add_control(
+			'marker_position_heading',
+			array(
+				'label'     => esc_html__( 'Marker Position', 'dope-map' ),
+				'type'      => \Elementor\Controls_Manager::HEADING,
+				'separator' => 'before',
+			)
+		);
+
+		$repeater->add_control(
+			'marker_horizontal_orientation',
+			array(
+				'label'   => esc_html__( 'Horizontal Orientation', 'dope-map' ),
+				'type'    => \Elementor\Controls_Manager::CHOOSE,
+				'toggle'  => false,
+				'default' => 'right',
+				'options' => array(
+					'left'  => array(
+						'title' => esc_html__( 'Left', 'dope-map' ),
+						'icon'  => 'eicon-h-align-left',
+					),
+					'right' => array(
+						'title' => esc_html__( 'Right', 'dope-map' ),
+						'icon'  => 'eicon-h-align-right',
+					),
+				),
+			)
+		);
+
+		$repeater->add_control(
+			'marker_horizontal_offset',
+			array(
+				'label'      => esc_html__( 'Horizontal Offset', 'dope-map' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => array( 'px' ),
+				'range'      => array(
+					'px' => array(
+						'min'  => 0,
+						'max'  => 120,
+						'step' => 1,
+					),
+				),
+				'default'    => array(
+					'size' => 0,
+					'unit' => 'px',
+				),
+			)
+		);
+
+		$repeater->add_control(
+			'marker_vertical_orientation',
+			array(
+				'label'   => esc_html__( 'Vertical Orientation', 'dope-map' ),
+				'type'    => \Elementor\Controls_Manager::CHOOSE,
+				'toggle'  => false,
+				'default' => 'top',
+				'options' => array(
+					'top'    => array(
+						'title' => esc_html__( 'Top', 'dope-map' ),
+						'icon'  => 'eicon-v-align-top',
+					),
+					'bottom' => array(
+						'title' => esc_html__( 'Bottom', 'dope-map' ),
+						'icon'  => 'eicon-v-align-bottom',
+					),
+				),
+			)
+		);
+
+		$repeater->add_control(
+			'marker_vertical_offset',
+			array(
+				'label'      => esc_html__( 'Vertical Offset', 'dope-map' ),
+				'type'       => \Elementor\Controls_Manager::SLIDER,
+				'size_units' => array( 'px' ),
+				'range'      => array(
+					'px' => array(
+						'min'  => 0,
+						'max'  => 120,
+						'step' => 1,
+					),
+				),
+				'default'    => array(
+					'size' => 0,
+					'unit' => 'px',
+				),
+			)
+		);
+
+		$repeater->add_control(
 			'title',
 			array(
 				'label'       => esc_html__( 'Popup Title', 'dope-map' ),
@@ -987,6 +1076,16 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 
 				$has_custom_coords = isset( $location['custom_lat'] ) && isset( $location['custom_lng'] ) && is_numeric( $location['custom_lat'] ) && is_numeric( $location['custom_lng'] );
 				$lat_lng           = null;
+				$marker_horizontal_offset = isset( $location['marker_horizontal_offset']['size'] ) ? (int) $location['marker_horizontal_offset']['size'] : 0;
+				$marker_vertical_offset   = isset( $location['marker_vertical_offset']['size'] ) ? (int) $location['marker_vertical_offset']['size'] : 0;
+
+				if ( 'left' === ( $location['marker_horizontal_orientation'] ?? 'right' ) ) {
+					$marker_horizontal_offset *= -1;
+				}
+
+				if ( 'top' === ( $location['marker_vertical_orientation'] ?? 'top' ) ) {
+					$marker_vertical_offset *= -1;
+				}
 
 				if ( $has_custom_coords ) {
 					$lat_lng = array(
@@ -1004,6 +1103,8 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 					'countryCode' => $country_code,
 					'name'        => $marker_label ? $marker_label : ( $has_country ? $country_code : esc_html__( 'Location', 'dope-map' ) ),
 					'latLng'      => $lat_lng,
+					'offsetX'     => $marker_horizontal_offset,
+					'offsetY'     => $marker_vertical_offset,
 					'title'       => $title,
 					'subtitle'    => $subtitle,
 					'imageUrl'    => $image_url,
