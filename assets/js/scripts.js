@@ -340,6 +340,7 @@
         }
 
         return (
+          '<li class="dope-map-popup__link-item">' +
           '<a class="dope-map-popup__info-link" href="' +
           escapeHtml(row.linkUrl || '#') +
           '"' +
@@ -347,7 +348,8 @@
           (rel.length ? ' rel="' + rel.join(' ') + '"' : '') +
           '>' +
           escapeHtml(row.title || row.linkUrl || '') +
-          '</a>'
+          '</a>' +
+          '</li>'
         );
       })
       .join('');
