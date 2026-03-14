@@ -95,6 +95,22 @@
   cursor: pointer;
 }
 
+.dope-map-marker-labels {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+}
+
+.dope-map-marker-label {
+  position: absolute;
+  transform: translateY(-50%);
+  color: #c1e0ff;
+  font-size: 10px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
 .dope-map-popup-backdrop {
   position: absolute;
   inset: 0;

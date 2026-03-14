@@ -311,6 +311,41 @@
     return Math.max(min, Math.min(max, value));
   }
 
+  function renderMarkerLabels($stage, mapObject, markers, markerIconSize) {
+    var $labels = $stage.find('.dope-map-marker-labels');
+    var safeMarkerIconSize = getMarkerIconSize(markerIconSize);
+
+    if (!$labels.length) {
+      $labels = $('<div class="dope-map-marker-labels" aria-hidden="true"></div>').appendTo($stage);
+    }
+
+    $labels.empty();
+
+    if (!mapObject || !Array.isArray(markers) || !markers.length || typeof mapObject.latLngToPoint !== 'function') {
+      return;
+    }
+
+    markers.forEach(function (marker) {
+      if (!marker || !validLatLng(marker.latLng) || !marker.name) {
+        return;
+      }
+
+      var point = mapObject.latLngToPoint(marker.latLng[0], marker.latLng[1]);
+
+      if (!point) {
+        return;
+      }
+
+      $('<div class="dope-map-marker-label"></div>')
+        .text(marker.name)
+        .css({
+          left: point.x + Math.max(10, safeMarkerIconSize * 0.55) + 'px',
+          top: point.y - Math.round(safeMarkerIconSize * 0.52) + 'px',
+        })
+        .appendTo($labels);
+    });
+  }
+
   function escapeHtml(value) {
     return String(value || '')
       .replace(/&/g, '&amp;')
@@ -456,19 +491,6 @@
         },
       },
       markers: [],
-      onMarkerTipShow: function (event, tip, index) {
-        tip.hide();
-
-        var mapObject = $canvas.vectorMap('get', 'mapObject');
-        var markerItem = mapObject && mapObject.markers[index] ? mapObject.markers[index] : null;
-
-        if (!markerItem || !markerItem.config || !markerItem.config._dope) {
-          return;
-        }
-
-        setPopupContent($popup, markerItem.config._dope);
-        openPopup($widget, $popup);
-      },
       onMarkerClick: function (event, index) {
         var mapObject = $canvas.vectorMap('get', 'mapObject');
         var markerItem = mapObject && mapObject.markers[index] ? mapObject.markers[index] : null;
@@ -517,6 +539,12 @@
     if (markers.length && mapObject && typeof mapObject.addMarkers === 'function') {
       mapObject.addMarkers(markers);
     }
+
+    renderMarkerLabels($stage, mapObject, markers, styles.markerIconSize || 16);
+
+    $canvas.on('viewportChange.jvectormap', function () {
+      renderMarkerLabels($stage, mapObject, markers, styles.markerIconSize || 16);
+    });
 
     $popup.find('.dope-map-popup__close').on('click', function () {
       closePopup($widget, $popup);
