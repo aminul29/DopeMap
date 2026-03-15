@@ -364,12 +364,20 @@
     return Math.max(min, Math.min(max, value));
   }
 
-  function renderMarkerLabels($stage, mapObject, markers, markerIconSize) {
+  function renderMarkerLabels($stage, mapObject, markers, markerIconSize, showMarkerLabels) {
     var $labels = $stage.find('.dope-map-marker-labels');
     var safeMarkerIconSize = getMarkerIconSize(markerIconSize);
 
+    if (!showMarkerLabels) {
+      if ($labels.length) {
+        $labels.empty().remove();
+      }
+
+      return;
+    }
+
     if (!$labels.length) {
-      $labels = $('<div class="dope-map-marker-labels" aria-hidden="true"></div>').appendTo($stage);
+      $labels = $('<div class="dope-map-marker-labels"></div>').appendTo($stage);
     }
 
     $labels.empty();
@@ -378,7 +386,7 @@
       return;
     }
 
-    markers.forEach(function (marker) {
+    markers.forEach(function (marker, index) {
       if (!marker || !validLatLng(marker.latLng) || !marker.name) {
         return;
       }
@@ -389,14 +397,42 @@
         return;
       }
 
-      $('<div class="dope-map-marker-label"></div>')
+      $('<button class="dope-map-marker-label" type="button"></button>')
         .text(marker.name)
+        .attr('data-marker-index', index)
         .css({
           left: point.x + getMarkerOffsetValue(marker.offsetX) + Math.max(10, safeMarkerIconSize * 0.55) + 'px',
           top: point.y + getMarkerOffsetValue(marker.offsetY) - Math.round(safeMarkerIconSize * 0.52) + 'px',
         })
         .appendTo($labels);
     });
+  }
+
+  function openMarkerPopupByIndex($widget, $canvas, $popup, index) {
+    var mapObject = $canvas.vectorMap('get', 'mapObject');
+    var markerItem = mapObject && mapObject.markers[index] ? mapObject.markers[index] : null;
+
+    if (!markerItem || !markerItem.config || !markerItem.config._dope) {
+      return;
+    }
+
+    setPopupContent($popup, markerItem.config._dope);
+    openPopup($widget, $popup);
+  }
+
+  function setMarkerHoverState($canvas, $stage, index, isHovered) {
+    var mapObject = $canvas.vectorMap('get', 'mapObject');
+    var markerItem = mapObject && mapObject.markers[index] ? mapObject.markers[index] : null;
+    var $markerNode = $();
+
+    if (markerItem && markerItem.element && markerItem.element.shape && markerItem.element.shape.node) {
+      $markerNode = $(markerItem.element.shape.node);
+    } else {
+      $markerNode = $canvas.find('.jvectormap-marker[data-index="' + index + '"]');
+    }
+
+    $markerNode.toggleClass('dope-map-marker-hover', !!isHovered);
+    $stage.find('.dope-map-marker-label[data-marker-index="' + index + '"]').toggleClass('is-hovered', !!isHovered);
   }
 
   function escapeHtml(value) {
@@ -544,17 +580,22 @@
         },
       },
       markers: [],
+      onMarkerOver: function (event, index) {
+        setMarkerHoverState($canvas, $stage, index, true);
+      },
+      onMarkerOut: function (event, index) {
+        setMarkerHoverState($canvas, $stage, index, false);
+      },
       onMarkerClick: function (event, index) {
-        var mapObject = $canvas.vectorMap('get', 'mapObject');
-        var markerItem = mapObject && mapObject.markers[index] ? mapObject.markers[index] : null;
-
-        if (!markerItem || !markerItem.config || !markerItem.config._dope) {
-          return;
+        event.preventDefault();
+        openMarkerPopupByIndex($widget, $canvas, $popup, index);
+      },
+      onRegionTipShow: function (event, tip) {
+        if (tip && typeof tip.hide === 'function') {
+          tip.hide();
         }
 
         event.preventDefault();
-        setPopupContent($popup, markerItem.config._dope);
-        openPopup($widget, $popup);
       },
       onRegionClick: function (event, countryCode) {
         var mapObject = $canvas.vectorMap('get', 'mapObject');
@@ -593,10 +634,41 @@
       mapObject.addMarkers(markers);
     }
 
-    renderMarkerLabels($stage, mapObject, markers, styles.markerIconSize || 16);
+    renderMarkerLabels($stage, mapObject, markers, styles.markerIconSize || 16, styles.showMarkerLabels !== false);
 
     $canvas.on('viewportChange.jvectormap', function () {
-      renderMarkerLabels($stage, mapObject, markers, styles.markerIconSize || 16);
+      renderMarkerLabels($stage, mapObject, markers, styles.markerIconSize || 16, styles.showMarkerLabels !== false);
+    });
+
+    $stage.on('click', '.dope-map-marker-label', function (event) {
+      var index = Number($(event.currentTarget).attr('data-marker-index'));
+
+      if (!Number.isFinite(index)) {
+        return;
+      }
+
+      event.preventDefault();
+      openMarkerPopupByIndex($widget, $canvas, $popup, index);
+    });
+
+    $stage.on('mouseenter focusin', '.dope-map-marker-label', function (event) {
+      var index = Number($(event.currentTarget).attr('data-marker-index'));
+
+      if (!Number.isFinite(index)) {
+        return;
+      }
+
+      setMarkerHoverState($canvas, $stage, index, true);
+    });
+
+    $stage.on('mouseleave focusout', '.dope-map-marker-label', function (event) {
+      var index = Number($(event.currentTarget).attr('data-marker-index'));
+
+      if (!Number.isFinite(index)) {
+        return;
+      }
+
+      setMarkerHoverState($canvas, $stage, index, false);
     });
 
     $popup.find('.dope-map-popup__close').on('click', function () {

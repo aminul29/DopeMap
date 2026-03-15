@@ -93,6 +93,14 @@
 
 .dope-map-widget .jvectormap-marker {
   cursor: pointer;
+  transition: transform 180ms ease, filter 180ms ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.dope-map-widget .jvectormap-marker.dope-map-marker-hover {
+  transform: scale(1.18);
+  filter: drop-shadow(0 2px 6px rgba(193, 224, 255, 0.45));
 }
 
 .dope-map-marker-labels {
@@ -105,10 +113,29 @@
 .dope-map-marker-label {
   position: absolute;
   transform: translateY(-50%);
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: #c1e0ff;
   font-size: 10px;
   line-height: 1.2;
   white-space: nowrap;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: transform 180ms ease, color 180ms ease;
+  transform-origin: left center;
+}
+
+.dope-map-marker-label:hover,
+.dope-map-marker-label.is-hovered,
+.dope-map-marker-label:focus-visible {
+  transform: translateY(-50%) scale(1.08);
+  color: #ffffff;
+}
+
+.dope-map-marker-label:focus-visible {
+  outline: 2px solid #c1e0ff;
+  outline-offset: 2px;
 }
 
 .dope-map-popup-backdrop {

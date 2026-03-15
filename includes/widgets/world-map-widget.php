@@ -194,6 +194,18 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 			)
 		);
 
+		$this->add_control(
+			'show_marker_labels',
+			array(
+				'label'        => esc_html__( 'Show Location Name', 'dope-map' ),
+				'type'         => \Elementor\Controls_Manager::SWITCHER,
+				'label_on'     => esc_html__( 'Show', 'dope-map' ),
+				'label_off'    => esc_html__( 'Hide', 'dope-map' ),
+				'return_value' => 'yes',
+				'default'      => 'yes',
+			)
+		);
+
 		$this->end_controls_section();
 
 		$this->start_controls_section(
@@ -1046,6 +1058,7 @@ class DopeMap_World_Map_Widget extends \Elementor\Widget_Base {
 			'markerColor'      => sanitize_hex_color( $settings['marker_color'] ),
 			'markerHoverColor' => sanitize_hex_color( $settings['marker_hover_color'] ),
 			'markerIconSize'   => isset( $settings['marker_icon_size']['size'] ) ? max( 12, min( 96, (int) $settings['marker_icon_size']['size'] ) ) : 16,
+			'showMarkerLabels' => 'yes' === ( $settings['show_marker_labels'] ?? 'yes' ),
 		);
 
 		$markers = array();
