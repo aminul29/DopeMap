@@ -155,7 +155,7 @@
   left: 50%;
   z-index: 40;
   width: min(520px, calc(100% - 24px));
-  max-height: calc(100% - 24px);
+  max-height: calc(100% - 40px);
   background: var(--dope-popup-bg);
   color: var(--dope-popup-text);
   border: 1px solid var(--dope-popup-border-color);
@@ -163,6 +163,8 @@
   box-shadow: 0 12px 38px rgba(0, 0, 0, 0.42);
   overflow: hidden;
   transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
 }
 
 .dope-map-popup[hidden] {
@@ -219,9 +221,13 @@
 }
 
 .dope-map-popup__content {
-  max-height: calc(100vh - 120px);
-  overflow: auto;
-  padding: 14px 14px 16px;
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 14px 14px 24px;
+  scrollbar-gutter: stable;
 }
 
 .dope-map-widget .dope-map-popup__title {
@@ -306,11 +312,11 @@
 
   .dope-map-popup {
     width: min(360px, calc(100% - 16px));
-    max-height: calc(100% - 8px);
+    max-height: calc(100% - 20px);
   }
 
   .dope-map-popup__content {
-    max-height: calc(100vh - 56px);
+    padding-bottom: 20px;
   }
 
   .dope-map-info-table {

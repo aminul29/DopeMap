@@ -78,3 +78,26 @@
   color: #50575e;
   background: #f9fafb;
 }
+
+/* Keep repeater WYSIWYG fields scrollable instead of expanding unpredictably. */
+.elementor-control-locations .elementor-control-type-wysiwyg .wp-editor-container,
+.elementor-control-info_table_rows .elementor-control-type-wysiwyg .wp-editor-container {
+  max-height: 240px;
+  overflow: hidden;
+}
+
+.elementor-control-locations .elementor-control-type-wysiwyg textarea.wp-editor-area,
+.elementor-control-info_table_rows .elementor-control-type-wysiwyg textarea.wp-editor-area {
+  max-height: 180px;
+  min-height: 120px;
+  overflow-y: auto;
+  resize: vertical;
+  -webkit-overflow-scrolling: touch;
+}
+
+.elementor-control-locations .elementor-control-type-wysiwyg .mce-edit-area iframe,
+.elementor-control-info_table_rows .elementor-control-type-wysiwyg .mce-edit-area iframe,
+.elementor-control-locations .elementor-control-type-wysiwyg .tox .tox-edit-area__iframe,
+.elementor-control-info_table_rows .elementor-control-type-wysiwyg .tox .tox-edit-area__iframe {
+  height: 180px !important;
+}
